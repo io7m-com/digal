@@ -9,10 +9,10 @@ digal
 
 | JVM | Platform | Status |
 |-----|----------|--------|
-| OpenJDK (Temurin) Current | Linux | [![Build (OpenJDK (Temurin) Current, Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/workflows/main.linux.temurin.current.yml?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.current)|
-| OpenJDK (Temurin) LTS | Linux | [![Build (OpenJDK (Temurin) LTS, Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/workflows/main.linux.temurin.lts.yml?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.lts)|
-| OpenJDK (Temurin) Current | Windows | [![Build (OpenJDK (Temurin) Current, Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/workflows/main.windows.temurin.current.yml?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.current)|
-| OpenJDK (Temurin) LTS | Windows | [![Build (OpenJDK (Temurin) LTS, Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/workflows/main.windows.temurin.lts.yml?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.lts)|
+| OpenJDK (Temurin) Current | Linux | [![Build (OpenJDK (Temurin) Current, Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.linux.temurin.current.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.current)|
+| OpenJDK (Temurin) LTS | Linux | [![Build (OpenJDK (Temurin) LTS, Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.linux.temurin.lts.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.lts)|
+| OpenJDK (Temurin) Current | Windows | [![Build (OpenJDK (Temurin) Current, Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.windows.temurin.current.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.current)|
+| OpenJDK (Temurin) LTS | Windows | [![Build (OpenJDK (Temurin) LTS, Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.windows.temurin.lts.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.lts)|
 
 ## Digal
 
@@ -58,9 +58,9 @@ Visually, a dial consists of the following components:
 
 ![digal](src/site/resources/dial1.png)
 
-* An _indicator_ is a small notch on the dial that shows which direction the
+* The _indicator_ is a small notch on the dial that shows which direction the
   dial is pointing.
-* A _radial gauge_ is a filled in arc segment showing how far away the current
+* The _radial gauge_ is a filled-in arc segment showing how far away the current
   dial setting is from the minimum.
 * The _tick marks_ are small marks around the dial that can be used to indicate
   discrete values. The number of tick marks can be customized.
@@ -126,7 +126,7 @@ a dial with id `#dial0`, the following CSS will produce an ugly looking dial:
   dial-indicator-color: #00ffff;
   dial-indicator-size: 3.0;
   dial-radial-gauge-color: #ff00ff;
-  dial-radial-gauge-size: 6.0;
+  dial-radial-gauge-size: 12.0;
   dial-shade-color: #ff000050;
   dial-tick-color: #ff0000;
   dial-tick-size: 1.0;

@@ -21,9 +21,9 @@ import com.github.romankh3.image.comparison.ImageComparison;
 import com.io7m.digal.core.DialControl;
 import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -37,12 +37,14 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.framework.junit5.Stop;
 
 import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import static com.github.romankh3.image.comparison.model.ImageComparisonState.MATCH;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ApplicationExtension.class)
 public final class DialControlTest
@@ -70,6 +72,9 @@ public final class DialControlTest
     final DialControl dial =
       robot.lookup("#dial0")
         .query();
+
+    robot.targetWindow(dial)
+      .clickOn(dial, MouseButton.PRIMARY);
 
     final var target =
       robot.point(dial)
@@ -105,7 +110,7 @@ public final class DialControlTest
   public void testCSS(
     final FxRobot robot,
     final TestInfo info)
-    throws IOException
+    throws Exception
   {
     Platform.runLater(() -> {
       this.stageCurrent.setTitle(
@@ -117,37 +122,86 @@ public final class DialControlTest
       robot.lookup("#dial0")
         .query();
 
+    robot.targetWindow(dial)
+      .clickOn(dial, MouseButton.PRIMARY);
+
     dial.getStylesheets()
       .add(DialControlTest.class.getResource("/com/io7m/digal/tests/style.css")
              .toString());
 
+    dial.applyCss();
     dial.setRawValue(0.3);
 
-    final var image =
-      robot.capture(dial)
-        .getImage();
+    robot.sleep(1L, TimeUnit.SECONDS);
 
-    final var actualImage =
+    /*
+     * Capture an image of the scene and save it.
+     */
+
+    final var scene = (Scene) dial.getScene();
+    final var imageReceived =
+      new WritableImage(
+        (int) scene.getWidth(),
+        (int) scene.getHeight()
+      );
+
+    final var latch = new CountDownLatch(1);
+    Platform.runLater(() -> {
+      scene.snapshot(param -> {
+        latch.countDown();
+        return null;
+      }, imageReceived);
+    });
+    latch.await(5L, TimeUnit.SECONDS);
+
+    final var imageReceivedOutput =
       new BufferedImage(
-        (int) image.getWidth(),
-        (int) image.getHeight(),
+        (int) imageReceived.getWidth(),
+        (int) imageReceived.getHeight(),
         BufferedImage.TYPE_INT_ARGB
       );
 
-    SwingFXUtils.fromFXImage(image, actualImage);
+    final var graphics = imageReceivedOutput.createGraphics();
+    final var reader = imageReceived.getPixelReader();
+    for (int y = 0; y < (int) imageReceived.getHeight(); ++y) {
+      for (int x = 0; x < (int) imageReceived.getWidth(); ++x) {
+        final var argb = reader.getArgb(x, y);
+        final var a = (argb >> 24) & 0xff;
+        final var r = (argb >> 16) & 0xff;
+        final var g = (argb >> 8) & 0xff;
+        final var b = (argb & 0xff);
+        graphics.setPaint(new Color(r, g, b, a));
+        graphics.fillRect(x, y, 1, 1);
+      }
+    }
+    graphics.dispose();
 
-    final var expectedImage =
-      loadSampleImage();
-
-    final var imageComparisonResult =
-      new ImageComparison(expectedImage, actualImage)
-        .compareImages();
-
-    imageComparisonResult.writeResultTo(
+    ImageIO.write(
+      imageReceivedOutput,
+      "PNG",
       new File("testCSS.png")
     );
 
-    assertEquals(MATCH, imageComparisonResult.getImageComparisonState());
+    final var imageExpected =
+      loadSampleImage();
+
+    final var imageComparison =
+      new ImageComparison(imageExpected, imageReceivedOutput);
+
+    final var imageComparisonResult =
+      imageComparison.compareImages();
+
+    final var difference =
+      imageComparisonResult.getDifferencePercent();
+
+    final var allowDifference = 1.5f;
+    assertTrue(
+      difference < allowDifference,
+      String.format(
+        "Difference %f must be < %f",
+        Float.valueOf(difference),
+        Float.valueOf(allowDifference))
+    );
   }
 
   private static BufferedImage loadSampleImage()
@@ -172,7 +226,7 @@ public final class DialControlTest
     pane.setPadding(new Insets(8));
 
     final var dial0 = new DialControl();
-    final var dialSize = 48.0;
+    final var dialSize = 128.0;
     dial0.setPrefSize(dialSize, dialSize);
     dial0.setMinSize(dialSize, dialSize);
     dial0.setMaxSize(dialSize, dialSize);
