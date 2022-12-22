@@ -18,20 +18,15 @@
 package com.io7m.digal.tests;
 
 import com.github.romankh3.image.comparison.ImageComparison;
-import com.github.romankh3.image.comparison.model.ImageComparisonResult;
 import com.io7m.digal.core.DialControl;
 import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Platform;
-import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,12 +41,10 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static com.github.romankh3.image.comparison.model.ImageComparisonState.MATCH;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(ApplicationExtension.class)
 public final class DialControlTest
@@ -130,7 +123,7 @@ public final class DialControlTest
         .query();
 
     robot.targetWindow(dial)
-        .clickOn(dial, MouseButton.PRIMARY);
+      .clickOn(dial, MouseButton.PRIMARY);
 
     dial.getStylesheets()
       .add(DialControlTest.class.getResource("/com/io7m/digal/tests/style.css")
@@ -194,10 +187,21 @@ public final class DialControlTest
 
     final var imageComparison =
       new ImageComparison(imageExpected, imageReceivedOutput);
+
     final var imageComparisonResult =
       imageComparison.compareImages();
 
-    assertEquals(MATCH, imageComparisonResult.getImageComparisonState());
+    final var difference =
+      imageComparisonResult.getDifferencePercent();
+
+    final var allowDifference = 0.016f;
+    assertTrue(
+      difference < allowDifference,
+      String.format(
+        "Difference %f must be < %f",
+        Float.valueOf(difference),
+        Float.valueOf(allowDifference))
+    );
   }
 
   private static BufferedImage loadSampleImage()
