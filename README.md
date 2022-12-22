@@ -126,7 +126,7 @@ a dial with id `#dial0`, the following CSS will produce an ugly looking dial:
   dial-indicator-color: #00ffff;
   dial-indicator-size: 3.0;
   dial-radial-gauge-color: #ff00ff;
-  dial-radial-gauge-size: 6.0;
+  dial-radial-gauge-size: 12.0;
   dial-shade-color: #ff000050;
   dial-tick-color: #ff0000;
   dial-tick-size: 1.0;
