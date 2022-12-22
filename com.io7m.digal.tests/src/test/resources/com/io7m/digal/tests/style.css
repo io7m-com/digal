@@ -1,0 +1,14 @@
+#dial0
+{
+  dial-body-color: #30a030;
+  dial-body-stroke-color: #0000ff;
+  dial-emboss-color: #00000030;
+  dial-emboss-size: 4.0;
+  dial-indicator-color: #00ffff;
+  dial-indicator-size: 3.0;
+  dial-radial-gauge-color: #ff00ff;
+  dial-radial-gauge-size: 6.0;
+  dial-shade-color: #ff000050;
+  dial-tick-color: #ff0000;
+  dial-tick-size: 1.0;
+}
