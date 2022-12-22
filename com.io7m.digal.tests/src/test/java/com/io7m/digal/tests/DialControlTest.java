@@ -194,7 +194,7 @@ public final class DialControlTest
     final var difference =
       imageComparisonResult.getDifferencePercent();
 
-    final var allowDifference = 0.016f;
+    final var allowDifference = 1.5f;
     assertTrue(
       difference < allowDifference,
       String.format(
