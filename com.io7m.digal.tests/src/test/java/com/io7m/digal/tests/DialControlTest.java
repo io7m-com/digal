@@ -27,6 +27,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -70,6 +71,9 @@ public final class DialControlTest
     final DialControl dial =
       robot.lookup("#dial0")
         .query();
+
+    robot.targetWindow(dial)
+      .clickOn(dial, MouseButton.PRIMARY);
 
     final var target =
       robot.point(dial)
@@ -116,6 +120,9 @@ public final class DialControlTest
     final DialControl dial =
       robot.lookup("#dial0")
         .query();
+
+    robot.targetWindow(dial)
+        .clickOn(dial, MouseButton.PRIMARY);
 
     dial.getStylesheets()
       .add(DialControlTest.class.getResource("/com/io7m/digal/tests/style.css")

@@ -50,7 +50,7 @@ sleep 1
 # Start recording the session.
 #
 
-ffmpeg -f x11grab -y -r 15 -video_size 1280x1024 -i :99 -vcodec libx264 test-suite.mkv &
+ffmpeg -f x11grab -y -r 30 -video_size 1280x1024 -i :99 -vcodec libx264 test-suite.mkv &
 FFMPEG_PID="$!"
 FFMPEG_JOB_ID=$(jobs -l | grep " ${FFMPEG_PID} " | cut -c2)
 
