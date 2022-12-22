@@ -52,7 +52,6 @@ sleep 1
 
 ffmpeg -f x11grab -y -r 30 -video_size 1280x1024 -i :99 -vcodec libx264 test-suite.mkv &
 FFMPEG_PID="$!"
-FFMPEG_JOB_ID=$(jobs -l | grep " ${FFMPEG_PID} " | cut -c2)
 
 #---------------------------------------------------------------------
 # Execute the passed-in build command.
@@ -68,4 +67,5 @@ FFMPEG_JOB_ID=$(jobs -l | grep " ${FFMPEG_PID} " | cut -c2)
 
 sleep 10
 kill -INT "${FFMPEG_PID}"
-fg "${FFMPEG_JOB_ID}"
+sleep 10
+exit 0
