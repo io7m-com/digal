@@ -29,3 +29,9 @@ jobs:
         with:
           name: test-logs
           path: ./com.io7m.digal.tests/target/surefire-reports
+      - name: Upload test images
+        uses: actions/upload-artifact@v2
+        if: ${{ always() }}
+        with:
+          name: test-images
+          path: ./com.io7m.digal.tests/testCSS.png
