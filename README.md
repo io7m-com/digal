@@ -58,9 +58,9 @@ Visually, a dial consists of the following components:
 
 ![digal](src/site/resources/dial1.png)
 
-* An _indicator_ is a small notch on the dial that shows which direction the
+* The _indicator_ is a small notch on the dial that shows which direction the
   dial is pointing.
-* A _radial gauge_ is a filled in arc segment showing how far away the current
+* The _radial gauge_ is a filled-in arc segment showing how far away the current
   dial setting is from the minimum.
 * The _tick marks_ are small marks around the dial that can be used to indicate
   discrete values. The number of tick marks can be customized.
