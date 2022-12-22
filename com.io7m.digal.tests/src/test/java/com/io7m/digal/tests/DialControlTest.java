@@ -41,6 +41,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static com.github.romankh3.image.comparison.model.ImageComparisonState.MATCH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -129,6 +130,8 @@ public final class DialControlTest
              .toString());
 
     dial.setRawValue(0.3);
+
+    robot.sleep(1L, TimeUnit.SECONDS);
 
     final var image =
       robot.capture(dial)
