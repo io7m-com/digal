@@ -407,15 +407,11 @@ public final class DialControl extends Region
 
       final var count = this.tickCount.get();
       final var tickDelta = 270.0 / (double) count;
-      g.save();
-      try {
-        g.rotate(-225.0);
-        for (int index = 0; index <= count; ++index) {
-          g.strokeLine(0.0, 0.5, halfWidth, 0.5);
-          g.rotate(tickDelta);
-        }
-      } finally {
-        g.restore();
+
+      g.rotate(-225.0);
+      for (int index = 0; index <= count; ++index) {
+        g.strokeLine(0.0, 0.5, halfWidth, 0.5);
+        g.rotate(tickDelta);
       }
 
     } finally {
