@@ -17,13 +17,11 @@
 
 package com.io7m.digal.tests;
 
-import com.github.romankh3.image.comparison.ImageComparison;
 import com.io7m.digal.core.DialControl;
 import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -36,12 +34,6 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.framework.junit5.Stop;
 
-import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -138,80 +130,11 @@ public final class DialControlTest
      * Capture an image of the scene and save it.
      */
 
-    final var scene = (Scene) dial.getScene();
-    final var imageReceived =
-      new WritableImage(
-        (int) scene.getWidth(),
-        (int) scene.getHeight()
-      );
-
-    final var latch = new CountDownLatch(1);
-    Platform.runLater(() -> {
-      scene.snapshot(param -> {
-        latch.countDown();
-        return null;
-      }, imageReceived);
-    });
-    latch.await(5L, TimeUnit.SECONDS);
-
-    final var imageReceivedOutput =
-      new BufferedImage(
-        (int) imageReceived.getWidth(),
-        (int) imageReceived.getHeight(),
-        BufferedImage.TYPE_INT_ARGB
-      );
-
-    final var graphics = imageReceivedOutput.createGraphics();
-    final var reader = imageReceived.getPixelReader();
-    for (int y = 0; y < (int) imageReceived.getHeight(); ++y) {
-      for (int x = 0; x < (int) imageReceived.getWidth(); ++x) {
-        final var argb = reader.getArgb(x, y);
-        final var a = (argb >> 24) & 0xff;
-        final var r = (argb >> 16) & 0xff;
-        final var g = (argb >> 8) & 0xff;
-        final var b = (argb & 0xff);
-        graphics.setPaint(new Color(r, g, b, a));
-        graphics.fillRect(x, y, 1, 1);
-      }
-    }
-    graphics.dispose();
-
-    ImageIO.write(
-      imageReceivedOutput,
-      "PNG",
-      new File("testCSS.png")
+    DialImageComparisons.compareSampleImageWithScene(
+      "testCSS.png",
+      dial.getScene(),
+      1.5
     );
-
-    final var imageExpected =
-      loadSampleImage();
-
-    final var imageComparison =
-      new ImageComparison(imageExpected, imageReceivedOutput);
-
-    final var imageComparisonResult =
-      imageComparison.compareImages();
-
-    final var difference =
-      imageComparisonResult.getDifferencePercent();
-
-    final var allowDifference = 1.5f;
-    assertTrue(
-      difference < allowDifference,
-      String.format(
-        "Difference %f must be < %f",
-        Float.valueOf(difference),
-        Float.valueOf(allowDifference))
-    );
-  }
-
-  private static BufferedImage loadSampleImage()
-    throws IOException
-  {
-    final var stream =
-      DialControlTest.class.getResource(
-        "/com/io7m/digal/tests/dial.png");
-
-    return ImageIO.read(stream);
   }
 
   @Start
