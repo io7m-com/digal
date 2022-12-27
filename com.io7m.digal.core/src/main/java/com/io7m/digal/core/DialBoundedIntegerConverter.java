@@ -74,6 +74,6 @@ public final class DialBoundedIntegerConverter
     final var delta =
       dMax - dMin;
 
-    return (x * delta) + dMin;
+    return (double) Math.round((x * delta) + dMin);
   }
 }
