@@ -39,8 +39,6 @@ public final class DialControlLabelled extends VBox
     new Insets(0.0, 8.0, 8.0, 8.0);
   private static final double LABEL_HEIGHT =
     32.0;
-  private static final double WIDTH_DEFAULT =
-    64.0;
   private static final double TEXT_HEIGHT =
     24.0;
 
