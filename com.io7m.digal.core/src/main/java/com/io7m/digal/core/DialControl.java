@@ -266,6 +266,7 @@ public final class DialControl extends Region
     this.properties.add(this.heightProperty());
     this.properties.add(this.rawValue);
 
+    this.rawValue.set(1.0);
     this.rawValue.addListener(o -> this.convertValue());
     for (final var p : this.properties) {
       p.addListener(o -> this.redraw());
@@ -275,6 +276,12 @@ public final class DialControl extends Region
     this.dragYThen = 0.0;
     this.canvas.setOnMousePressed(this::onMousePressed);
     this.canvas.setOnMouseDragged(this::onMouseDragged);
+
+    /*
+     * Ensure that all listeners receive an initial value.
+     */
+
+    this.rawValue.set(0.0);
   }
 
   private static <T> SimpleStyleableObjectProperty<T> propertyOf(
