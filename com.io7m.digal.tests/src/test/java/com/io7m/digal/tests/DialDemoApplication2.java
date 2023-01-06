@@ -18,13 +18,16 @@ package com.io7m.digal.tests;
 
 import com.io7m.digal.core.DialControlLabelled;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A demo application for the dial.
@@ -32,9 +35,16 @@ import java.util.List;
 
 public final class DialDemoApplication2 extends Application
 {
+  private final ScheduledExecutorService executor;
+
   public DialDemoApplication2()
   {
-
+    this.executor =
+      Executors.newSingleThreadScheduledExecutor(r -> {
+        final var thread = new Thread(r);
+        thread.setDaemon(true);
+        return thread;
+      });
   }
 
   @Override
@@ -59,6 +69,14 @@ public final class DialDemoApplication2 extends Application
       dial.setPrefWidth(80.0);
       dial.dial().dialRadialGaugeSize().setValue(6.0);
     });
+
+    this.executor.scheduleAtFixedRate(() -> {
+      Platform.runLater(() -> {
+        dials.forEach(dial -> {
+          dial.dial().setRawValue(Math.random());
+        });
+      });
+    }, 250L, 250L, TimeUnit.MILLISECONDS);
 
     pane.getChildren()
       .addAll(dials);

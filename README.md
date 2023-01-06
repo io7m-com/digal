@@ -7,12 +7,13 @@ digal
 
 ![digal](./src/site/resources/digal.jpg?raw=true)
 
-| JVM | Platform | Status |
-|-----|----------|--------|
-| OpenJDK (Temurin) Current | Linux | [![Build (OpenJDK (Temurin) Current, Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.linux.temurin.current.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.current)|
-| OpenJDK (Temurin) LTS | Linux | [![Build (OpenJDK (Temurin) LTS, Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.linux.temurin.lts.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.lts)|
-| OpenJDK (Temurin) Current | Windows | [![Build (OpenJDK (Temurin) Current, Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.windows.temurin.current.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.current)|
-| OpenJDK (Temurin) LTS | Windows | [![Build (OpenJDK (Temurin) LTS, Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.windows.temurin.lts.yml)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.lts)|
+| JVM                       | Platform | Status |
+|---------------------------|----------|--------|
+| OpenJDK (Temurin) Current | Linux    | [![Build (OpenJDK (Temurin) Current,   Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.linux.temurin.current?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.current)     |
+| OpenJDK (Temurin) Current | Windows  | [![Build (OpenJDK (Temurin) Current, Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.windows.temurin.current?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.current) |
+| OpenJDK (Temurin) LTS     | Linux    | [![Build (OpenJDK (Temurin) LTS,       Linux)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.linux.temurin.lts?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.linux.temurin.lts)             |
+| OpenJDK (Temurin) LTS     | Windows  | [![Build (OpenJDK (Temurin) LTS,     Windows)](https://img.shields.io/github/actions/workflow/status/io7m/digal/main.windows.temurin.lts?branch=develop)](https://github.com/io7m/digal/actions?query=workflow%3Amain.windows.temurin.lts)         |
+
 
 ## Digal
 
@@ -110,6 +111,41 @@ marks to `12`:
 ```
 dial0.setTickCount(12);
 ```
+
+### Data Flow
+
+Some applications may choose to use dials both as a data display and a data
+input. For example, a user interface that controls an external audio device
+might want dials to always match the state of the external device, but also
+need to be adjustable by the user turning the dial onscreen. The dials are
+typically configured with a `ChangeListener` that is invoked when the user
+turns the dial that submits commands to update the external device. Additionally,
+the dials are usually set to particular values when state updates a received
+from the external device. This can cause a problem due to a circular data
+dependency:
+
+  1. The user turns a dial.
+  2. The `ChangeListener` on the dial sees the dial value change and submits
+     a command to update the value on the external device.
+  3. The external device returns the newly set value.
+  4. The dial is updated with the new value.
+  5. The `ChangeListener` on the dial sees the dial value change and submits
+     a command to update the value on the external device.
+  6. The external device returns the newly set value...
+
+This problem is sometimes mitigated by the fact that setting a JavaFX property
+to a value to which it is already set doesn't result in observers of the
+property being called. This isn't always reliable, however, and so the
+`digal` API provides "quiet" versions of the commands to update dials that
+break the cycle of observer updates.
+
+The `setRawValueQuietly` and `setConvertedValueQuietly` commands will set
+the value of a dial and update the dial's UI, but _will not_ call any observers
+of the dial's value property.
+
+In the scenario described above, state updates that come from the external
+audio device should set dial values using `set*Quietly` so that the state
+updates do not cause more commands to be submitted to the device.
 
 ### CSS
 
