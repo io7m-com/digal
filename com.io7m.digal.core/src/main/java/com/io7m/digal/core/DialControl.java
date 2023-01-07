@@ -29,6 +29,7 @@ import javafx.css.StyleablePropertyFactory;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Control;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
@@ -154,8 +155,6 @@ public final class DialControl extends Region
   private static final double PREFERRED_SIZE = 64.0;
   private final Canvas canvas;
   private final Rectangle clip;
-  private final SimpleDoubleProperty convertedValue;
-  private final SimpleDoubleProperty rawValue;
   private final SimpleIntegerProperty tickCount;
   private final SimpleStyleableObjectProperty<Color> bodyColor;
   private final SimpleStyleableObjectProperty<Color> bodyStrokeColor;
@@ -170,44 +169,13 @@ public final class DialControl extends Region
   private final SimpleStyleableObjectProperty<Number> radialGaugeSize;
   private final SimpleStyleableObjectProperty<Number> tickSize;
   private final HashSet<ReadOnlyProperty<?>> properties;
+  private final SimpleDoubleProperty internalValueRaw;
+  private final SimpleDoubleProperty internalValueConverted;
+  private final SimpleDoubleProperty externalValueRaw;
+  private final SimpleDoubleProperty externalValueConverted;
   private DialValueConverterType converter;
   private double dragYThen;
-
-  /**
-   * @return The dial body color
-   */
-
-  public SimpleStyleableObjectProperty<Color> dialBodyColor()
-  {
-    return this.bodyColor;
-  }
-
-  /**
-   * @return The dial body stroke color
-   */
-
-  public SimpleStyleableObjectProperty<Color> dialBodyStrokeColor()
-  {
-    return this.bodyStrokeColor;
-  }
-
-  /**
-   * @return The dial emboss color
-   */
-
-  public SimpleStyleableObjectProperty<Color> dialEmbossColor()
-  {
-    return this.embossColor;
-  }
-
-  /**
-   * @return The dial's radial gauge size
-   */
-
-  public SimpleStyleableObjectProperty<Number> dialRadialGaugeSize()
-  {
-    return this.radialGaugeSize;
-  }
+  private boolean dragging;
 
   /**
    * A rotary dial control.
@@ -217,10 +185,16 @@ public final class DialControl extends Region
   {
     this.converter =
       new DialIdentityConverter();
-    this.rawValue =
+    this.internalValueRaw =
       new SimpleDoubleProperty();
-    this.convertedValue =
+    this.internalValueConverted =
       new SimpleDoubleProperty();
+
+    this.externalValueRaw =
+      new SimpleDoubleProperty();
+    this.externalValueConverted =
+      new SimpleDoubleProperty();
+
     this.properties =
       new HashSet<>();
 
@@ -261,13 +235,37 @@ public final class DialControl extends Region
 
     this.getChildren().setAll(this.canvas);
 
+    /*
+     * When the internal raw value is updated, the internal converted
+     * value is updated.
+     */
+
+    this.internalValueRaw.addListener(o -> {
+      this.internalValueConverted.set(
+        this.converter.convertFromDial(this.internalValueRaw.get())
+      );
+    });
+
+    /*
+     * When the external raw value is updated, the external converted
+     * value is updated.
+     */
+
+    this.externalValueRaw.addListener(o -> {
+      this.externalValueConverted.set(
+        this.converter.convertFromDial(this.externalValueRaw.get())
+      );
+    });
+
+    /*
+     * When any of the listed properties change, the dial is redrawn.
+     */
+
     this.properties.add(this.tickCount);
     this.properties.add(this.widthProperty());
     this.properties.add(this.heightProperty());
-    this.properties.add(this.rawValue);
+    this.properties.add(this.internalValueRaw);
 
-    this.rawValue.set(1.0);
-    this.rawValue.addListener(o -> this.convertValue());
     for (final var p : this.properties) {
       p.addListener(o -> this.redraw());
     }
@@ -276,12 +274,10 @@ public final class DialControl extends Region
     this.dragYThen = 0.0;
     this.canvas.setOnMousePressed(this::onMousePressed);
     this.canvas.setOnMouseDragged(this::onMouseDragged);
+    this.canvas.setOnMouseReleased(this::onMouseReleased);
 
-    /*
-     * Ensure that all listeners receive an initial value.
-     */
-
-    this.rawValue.set(0.0);
+    this.internalValueRaw.set(1.0);
+    this.internalValueRaw.set(0.0);
   }
 
   private static <T> SimpleStyleableObjectProperty<T> propertyOf(
@@ -301,6 +297,42 @@ public final class DialControl extends Region
     final double x)
   {
     return Math.min(Math.max(0.0, x), 1.0);
+  }
+
+  /**
+   * @return The dial body color
+   */
+
+  public SimpleStyleableObjectProperty<Color> dialBodyColor()
+  {
+    return this.bodyColor;
+  }
+
+  /**
+   * @return The dial body stroke color
+   */
+
+  public SimpleStyleableObjectProperty<Color> dialBodyStrokeColor()
+  {
+    return this.bodyStrokeColor;
+  }
+
+  /**
+   * @return The dial emboss color
+   */
+
+  public SimpleStyleableObjectProperty<Color> dialEmbossColor()
+  {
+    return this.embossColor;
+  }
+
+  /**
+   * @return The dial's radial gauge size
+   */
+
+  public SimpleStyleableObjectProperty<Number> dialRadialGaugeSize()
+  {
+    return this.radialGaugeSize;
   }
 
   @Override
@@ -457,20 +489,68 @@ public final class DialControl extends Region
   }
 
   /**
-   * Set the raw value of the dial, in the range {@code [0,1]}.
+   * Set the raw value of the dial, in the range {@code [0,1]}. If the user is
+   * currently dragging the dial, the update will be ignored. Observers of the
+   * various value properties will not be called, but the UI will be updated to
+   * reflect the new value.
    *
    * @param x The value
+   *
+   * @see #rawValue()
+   * @see #convertedValue()
+   */
+
+  public void setRawValueQuietly(
+    final double x)
+  {
+    if (this.dragging) {
+      return;
+    }
+
+    this.setInternalRawValue(x);
+  }
+
+  /**
+   * Set the raw value of the dial, in the range {@code [0,1]}. If the user is
+   * currently dragging the dial, the update will be ignored. Observers of the
+   * various value properties will be notified.
+   *
+   * @param x The value
+   *
+   * @see #rawValue()
+   * @see #convertedValue()
    */
 
   public void setRawValue(
     final double x)
   {
-    this.rawValue.set(clampNormal(x));
+    if (this.dragging) {
+      return;
+    }
+
+    this.setInternalRawValue(x);
+    this.setExternalRawValue(x);
   }
 
   /**
    * Set the value of the dial in display units (according to the registered
-   * converter).
+   * converter). Observers of the various value properties will not be called,
+   * but the UI will be updated to reflect the new value.
+   *
+   * @param x The display value
+   *
+   * @see #setValueConverter(DialValueConverterType)
+   */
+
+  public void setConvertedValueQuietly(
+    final double x)
+  {
+    this.setRawValueQuietly(this.converter.convertToDial(x));
+  }
+
+  /**
+   * Set the value of the dial in display units (according to the registered
+   * converter). Observers of the various value properties will be notified.
    *
    * @param x The display value
    *
@@ -481,6 +561,36 @@ public final class DialControl extends Region
     final double x)
   {
     this.setRawValue(this.converter.convertToDial(x));
+  }
+
+  /**
+   * @return The current raw value
+   */
+
+  public double getRawValue()
+  {
+    return this.internalValueRaw.getValue().doubleValue();
+  }
+
+  /**
+   * @return The current converted value
+   */
+
+  public double getConvertedValue()
+  {
+    return this.internalValueConverted.getValue().doubleValue();
+  }
+
+  private void setInternalRawValue(
+    final double x)
+  {
+    this.internalValueRaw.set(clampNormal(x));
+  }
+
+  private void setExternalRawValue(
+    final double x)
+  {
+    this.externalValueRaw.set(clampNormal(x));
   }
 
   /**
@@ -495,15 +605,6 @@ public final class DialControl extends Region
   }
 
   /**
-   * @return The raw dial value
-   */
-
-  public ReadOnlyDoubleProperty rawValue()
-  {
-    return this.rawValue;
-  }
-
-  /**
    * @return The current dial value converted according to the registered value
    * converter
    *
@@ -512,7 +613,16 @@ public final class DialControl extends Region
 
   public ReadOnlyDoubleProperty convertedValue()
   {
-    return this.convertedValue;
+    return this.externalValueConverted;
+  }
+
+  /**
+   * @return The current raw dial value
+   */
+
+  public ReadOnlyDoubleProperty rawValue()
+  {
+    return this.externalValueRaw;
   }
 
   /**
@@ -527,30 +637,59 @@ public final class DialControl extends Region
     this.converter = Objects.requireNonNull(f, "f");
   }
 
-  private void convertValue()
+  private void onMousePressed(
+    final MouseEvent mouseEvent)
   {
-    this.convertedValue.set(this.converter.convertFromDial(this.rawValue.get()));
+    if (mouseEvent.getButton() != MouseButton.PRIMARY) {
+      return;
+    }
+
+    this.dragging = true;
+    this.dragYThen = mouseEvent.getSceneY();
   }
 
   private void onMouseDragged(
     final MouseEvent mouseEvent)
   {
-    final var dragYNow = mouseEvent.getSceneY();
-    final var delta = dragYNow - this.dragYThen;
-
-    if (delta > (double) 0) {
-      this.setRawValue(this.rawValue.get() - 0.005);
-    } else {
-      this.setRawValue(this.rawValue.get() + 0.005);
+    if (mouseEvent.getButton() != MouseButton.PRIMARY) {
+      return;
     }
+
+    /*
+     * Dragging a dial updates both the internal and external value.
+     */
+
+    this.dragging = true;
+
+    final var dragYNow =
+      mouseEvent.getSceneY();
+    final var delta =
+      dragYNow - this.dragYThen;
+
+    final var valueThen =
+      this.internalValueRaw.get();
+
+    final double valueNow;
+    if (delta > (double) 0) {
+      valueNow = valueThen - 0.005;
+    } else {
+      valueNow = valueThen + 0.005;
+    }
+
+    this.setInternalRawValue(valueNow);
+    this.setExternalRawValue(valueNow);
 
     this.dragYThen = dragYNow;
   }
 
-  private void onMousePressed(
+  private void onMouseReleased(
     final MouseEvent mouseEvent)
   {
-    this.dragYThen = mouseEvent.getSceneY();
+    if (mouseEvent.getButton() != MouseButton.PRIMARY) {
+      return;
+    }
+
+    this.dragging = false;
   }
 
   private void redraw()
@@ -581,7 +720,7 @@ public final class DialControl extends Region
      */
 
     final var valueNow =
-      this.converter.convertToDial(this.convertedValue.get());
+      this.converter.convertToDial(this.internalValueConverted.get());
 
     this.renderRadialGauge(g, width, height, valueNow);
     this.renderShadow(g, width, height);

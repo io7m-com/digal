@@ -14,10 +14,10 @@
  * IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-
 package com.io7m.digal.tests;
 
 import com.io7m.digal.core.DialControl;
+import com.io7m.digal.core.DialIdentityConverter;
 import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -34,9 +34,10 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.framework.junit5.Stop;
 
+import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ApplicationExtension.class)
 public final class DialControlTest
@@ -135,6 +136,49 @@ public final class DialControlTest
       dial.getScene(),
       1.5
     );
+  }
+
+  /**
+   * Setting dial values programmatically can notify or not notify observers.
+   *
+   * @param robot The FX robot
+   * @param info  The test info
+   */
+
+  @Test
+  public void testNoObservers(
+    final FxRobot robot,
+    final TestInfo info)
+    throws Exception
+  {
+    Platform.runLater(() -> {
+      this.stageCurrent.setTitle(
+        "%s: %s".formatted(info.getTestClass().get(), info.getDisplayName())
+      );
+    });
+
+    final DialControl dial =
+      robot.lookup("#dial0")
+        .query();
+
+    final var updates = new LinkedList<Double>();
+    dial.rawValue()
+      .addListener((observable, oldValue, newValue) -> {
+        updates.add(Double.valueOf(newValue.doubleValue()));
+      });
+
+    dial.setValueConverter(new DialIdentityConverter());
+    dial.setRawValue(0.5);
+    dial.setRawValueQuietly(0.6);
+    dial.setConvertedValue(0.7);
+    dial.setConvertedValueQuietly(0.8);
+
+    assertEquals(0.5, updates.poll());
+    assertEquals(0.7, updates.poll());
+    assertEquals(0, updates.size());
+
+    assertEquals(0.8, dial.getConvertedValue());
+    assertEquals(0.8, dial.getRawValue());
   }
 
   @Start
