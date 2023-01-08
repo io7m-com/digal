@@ -119,7 +119,7 @@ might want dials to always match the state of the external device, but also
 need to be adjustable by the user turning the dial onscreen. The dials are
 typically configured with a `ChangeListener` that is invoked when the user
 turns the dial that submits commands to update the external device. Additionally,
-the dials are usually set to particular values when state updates a received
+the dials are usually set to particular values when state updates are received
 from the external device. This can cause a problem due to a circular data
 dependency:
 
