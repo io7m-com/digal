@@ -106,7 +106,7 @@ public final class DialControlLabelled extends VBox
       .bind(this.dial.widthProperty());
 
     this.text.textProperty()
-      .bind(this.dial.convertedValue()
+      .bind(this.dial.internalConvertedValue()
               .map(number -> this.valueFormatter.get().apply(number)));
 
     this.getChildren()

@@ -742,4 +742,25 @@ public final class DialControl extends Region
   {
     this.tickCount.set(Math.max(1, Math.min(270, i)));
   }
+
+  /**
+   * @return The current (internal) dial value converted according to the
+   * registered value converter
+   *
+   * @see #setValueConverter(DialValueConverterType)
+   */
+
+  public ReadOnlyDoubleProperty internalConvertedValue()
+  {
+    return this.internalValueConverted;
+  }
+
+  /**
+   * @return The current (internal) raw dial value
+   */
+
+  public ReadOnlyDoubleProperty internalRawValue()
+  {
+    return this.internalValueRaw;
+  }
 }
