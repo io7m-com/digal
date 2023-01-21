@@ -153,6 +153,8 @@ public final class DialControl extends Region
     );
 
   private static final double PREFERRED_SIZE = 64.0;
+  private static final double DRAG_DELTA = 0.005;
+
   private final Canvas canvas;
   private final Rectangle clip;
   private final SimpleIntegerProperty tickCount;
@@ -671,9 +673,9 @@ public final class DialControl extends Region
 
     final double valueNow;
     if (delta > (double) 0) {
-      valueNow = valueThen - 0.005;
+      valueNow = valueThen - DRAG_DELTA;
     } else {
-      valueNow = valueThen + 0.005;
+      valueNow = valueThen + DRAG_DELTA;
     }
 
     this.setInternalRawValue(valueNow);
