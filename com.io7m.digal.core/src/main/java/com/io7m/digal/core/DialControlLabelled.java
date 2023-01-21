@@ -76,8 +76,8 @@ public final class DialControlLabelled extends VBox
       new TextField();
 
     this.label.setPrefHeight(LABEL_HEIGHT);
-    this.text.setPrefHeight(TEXT_HEIGHT);
 
+    this.text.setPrefHeight(TEXT_HEIGHT);
     this.text.setEditable(false);
     this.text.setAlignment(Pos.CENTER);
     this.label.setAlignment(Pos.CENTER);
@@ -106,7 +106,7 @@ public final class DialControlLabelled extends VBox
       .bind(this.dial.widthProperty());
 
     this.text.textProperty()
-      .bind(this.dial.convertedValue()
+      .bind(this.dial.internalConvertedValue()
               .map(number -> this.valueFormatter.get().apply(number)));
 
     this.getChildren()
@@ -123,6 +123,15 @@ public final class DialControlLabelled extends VBox
   public ObjectProperty<Function<Number, String>> valueFormatter()
   {
     return this.valueFormatter;
+  }
+
+  /**
+   * @return The dial's label
+   */
+
+  public Label label()
+  {
+    return this.label;
   }
 
   /**
