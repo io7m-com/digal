@@ -80,13 +80,14 @@ turns the dial anti-clockwise.
 As mentioned, dials use real values in the range `[0,1]`. A dial instance
 can be provided with a _value converter_ that allows for converting internal
 values to something else for use externally. The package comes with a number
-of built-in converters, but implementing a converter only involves implementing
-a simple two-method interface. For example, a converter that allows a dial
-to have discrete values in the range `[0, 12]` could be specified as follows:
+of built-in converters, organized into _real_ and _discrete_ converters. A
+_real_ converter maps dial values in the range `[0, 1]` to a user-defined
+range of real numbers. A _discrete_ converter maps dial values in the range
+`[0, 1]` to a user-defined range of integers.
 
 ```
 dial0.setValueConverter(
-  new DialValueConverterType()
+  new DialValueConverterRealType()
   {
     @Override
     public double convertToDial(
@@ -100,6 +101,20 @@ dial0.setValueConverter(
       final double x)
     {
       return (double) Math.round(x * 12.0);
+    }
+
+    @Override
+    public double convertedNext(
+      final double x)
+    {
+      return x + 0.5;
+    }
+
+    @Override
+    public double convertedPrevious(
+      final double x)
+    {
+      return x - 0.5;
     }
   });
 ```

@@ -18,8 +18,8 @@ package com.io7m.digal.tests;
 
 import com.io7m.digal.core.DialControl;
 import com.io7m.digal.core.DialIdentityConverter;
+import com.io7m.digal.core.DialValueConverterDiscreteType;
 import com.io7m.digal.core.DialValueConverterRealType;
-import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.VerticalDirection;
@@ -42,146 +42,9 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ApplicationExtension.class)
-public final class DialControlTest
+public final class DialControlDiscreteTest
 {
   private Stage stageCurrent;
-
-  /**
-   * Test that adjusting the dial changes the value.
-   *
-   * @param robot The FX robot
-   * @param info  The test info
-   */
-
-  @Test
-  public void testDial(
-    final FxRobot robot,
-    final TestInfo info)
-  {
-    Platform.runLater(() -> {
-      this.stageCurrent.setTitle(
-        "%s: %s".formatted(info.getTestClass().get(), info.getDisplayName())
-      );
-    });
-
-    final DialControl dial =
-      robot.lookup("#dial0")
-        .query();
-
-    robot.targetWindow(dial)
-      .clickOn(dial, MouseButton.PRIMARY);
-
-    final var target =
-      robot.point(dial)
-        .atOffset(0.0, -32.0);
-
-    robot.drag(dial, MouseButton.PRIMARY);
-    robot.dropTo(target);
-
-    FxAssert.verifyThat(dial, node -> {
-      final var x = node.tickCount().get();
-      return x == 12;
-    });
-
-    FxAssert.verifyThat(dial, node -> {
-      final var x = node.convertedValue().get();
-      return x == 2.0;
-    });
-
-    FxAssert.verifyThat(dial, node -> {
-      final var x = node.rawValue().get();
-      return x == 0.16500000000000006;
-    });
-  }
-
-  /**
-   * Test that custom CSS changes the appearance.
-   *
-   * @param robot The FX robot
-   * @param info  The test info
-   */
-
-  @Test
-  public void testCSS(
-    final FxRobot robot,
-    final TestInfo info)
-    throws Exception
-  {
-    Platform.runLater(() -> {
-      this.stageCurrent.setTitle(
-        "%s: %s".formatted(info.getTestClass().get(), info.getDisplayName())
-      );
-    });
-
-    final DialControl dial =
-      robot.lookup("#dial0")
-        .query();
-
-    robot.targetWindow(dial)
-      .clickOn(dial, MouseButton.PRIMARY);
-
-    dial.getStylesheets()
-      .add(DialControlTest.class.getResource("/com/io7m/digal/tests/style.css")
-             .toString());
-
-    dial.applyCss();
-    dial.setRawValue(0.3);
-
-    robot.sleep(1L, TimeUnit.SECONDS);
-
-    /*
-     * Capture an image of the scene and save it.
-     */
-
-    DialImageComparisons.compareSampleImageWithScene(
-      "testCSS.png",
-      dial.getScene(),
-      1.5
-    );
-  }
-
-  /**
-   * Setting dial values programmatically can notify or not notify observers.
-   *
-   * @param robot The FX robot
-   * @param info  The test info
-   */
-
-  @Test
-  public void testNoObservers(
-    final FxRobot robot,
-    final TestInfo info)
-    throws Exception
-  {
-    Platform.runLater(() -> {
-      this.stageCurrent.setTitle(
-        "%s: %s".formatted(info.getTestClass().get(), info.getDisplayName())
-      );
-    });
-
-    final DialControl dial =
-      robot.lookup("#dial0")
-        .query();
-
-    final var updates = new LinkedList<Double>();
-    dial.rawValue()
-      .addListener((observable, oldValue, newValue) -> {
-        updates.add(Double.valueOf(newValue.doubleValue()));
-      });
-
-    dial.setValueConverter(new DialIdentityConverter());
-    dial.setRawValue(0.5);
-    dial.setRawValueQuietly(0.6);
-    dial.setConvertedValue(0.7);
-    dial.setConvertedValueQuietly(0.8);
-
-    assertEquals(0.5, updates.poll());
-    assertEquals(0.7, updates.poll());
-    assertEquals(0, updates.size());
-
-    assertEquals(0.8, dial.getConvertedValue());
-    assertEquals(0.8, dial.getRawValue());
-  }
 
   /**
    * Test that scrolling the dial changes the value.
@@ -251,34 +114,34 @@ public final class DialControlTest
     dial0.setId("dial0");
     dial0.setTickCount(12);
     dial0.setValueConverter(
-      new DialValueConverterRealType()
+      new DialValueConverterDiscreteType()
       {
         @Override
         public double convertToDial(
-          final double x)
+          final long x)
         {
-          return x / 12.0;
+          return (double) x / 16.0;
         }
 
         @Override
-        public double convertFromDial(
+        public long convertFromDial(
           final double x)
         {
-          return (double) Math.round(x * 12.0);
+          return Math.round(x * 16.0);
         }
 
         @Override
-        public double convertedNext(
-          final double x)
+        public long convertedNext(
+          final long x)
         {
-          return x + 1.0;
+          return x + 1L;
         }
 
         @Override
-        public double convertedPrevious(
-          final double x)
+        public long convertedPrevious(
+          final long x)
         {
-          return x - 1.0;
+          return x - 1L;
         }
       });
 

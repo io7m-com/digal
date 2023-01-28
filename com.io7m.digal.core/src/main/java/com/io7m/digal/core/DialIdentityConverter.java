@@ -22,7 +22,7 @@ package com.io7m.digal.core;
  */
 
 public final class DialIdentityConverter
-  implements DialValueConverterType
+  implements DialValueConverterRealType
 {
   /**
    * A value converter that leaves values unchanged.
@@ -45,5 +45,19 @@ public final class DialIdentityConverter
     final double x)
   {
     return x;
+  }
+
+  @Override
+  public double convertedNext(
+    final double x)
+  {
+    return x + 0.1;
+  }
+
+  @Override
+  public double convertedPrevious(
+    final double x)
+  {
+    return x - 0.1;
   }
 }

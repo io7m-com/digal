@@ -17,6 +17,7 @@
 package com.io7m.digal.tests;
 
 import com.io7m.digal.core.DialControl;
+import com.io7m.digal.core.DialValueConverterRealType;
 import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -56,7 +57,7 @@ public final class DialDemoApplication extends Application
 
     dial0.setTickCount(24);
     dial0.setValueConverter(
-      new DialValueConverterType()
+      new DialValueConverterRealType()
       {
         @Override
         public double convertToDial(
@@ -70,6 +71,20 @@ public final class DialDemoApplication extends Application
           final double x)
         {
           return (double) Math.round(x * 12.0);
+        }
+
+        @Override
+        public double convertedNext(
+          final double x)
+        {
+          return x + 1.0;
+        }
+
+        @Override
+        public double convertedPrevious(
+          final double x)
+        {
+          return x - 1.0;
         }
       });
 

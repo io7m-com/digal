@@ -17,23 +17,24 @@
 
 package com.io7m.digal.tests;
 
-import com.io7m.digal.core.DialBoundedIntegerConverter;
+import com.io7m.digal.core.DialBoundedLongConverter;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.IntRange;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class DialBoundedIntegerConverterTest
+public final class DialBoundedLongConverterTest
 {
   @Property
   public void test100(
     final @ForAll @IntRange(min = 0, max = 100) int x)
   {
     final var c =
-      new DialBoundedIntegerConverter(0, 100);
+      new DialBoundedLongConverter(0L, 100L, 1L);
     final var y =
       c.convertToDial(x);
 
@@ -43,7 +44,7 @@ public final class DialBoundedIntegerConverterTest
     final var z =
       c.convertFromDial(y);
 
-    assertEquals(x, z, 0.00001);
+    assertEquals(x, (double) z, 0.00001);
   }
 
   @Property
@@ -51,7 +52,7 @@ public final class DialBoundedIntegerConverterTest
     final @ForAll @IntRange(min = -100, max = 100) int x)
   {
     final var c =
-      new DialBoundedIntegerConverter(-100, 100);
+      new DialBoundedLongConverter(-100L, 100L, 1L);
     final var y =
       c.convertToDial(x);
 
@@ -61,7 +62,7 @@ public final class DialBoundedIntegerConverterTest
     final var z =
       c.convertFromDial(y);
 
-    assertEquals(x, z, 0.00001);
+    assertEquals(x, (double) z, 0.00001);
   }
 
   @Property
@@ -70,7 +71,17 @@ public final class DialBoundedIntegerConverterTest
     final @ForAll @IntRange(min = Integer.MIN_VALUE, max = -1) int max)
   {
     assertThrows(IllegalArgumentException.class, () -> {
-      new DialBoundedIntegerConverter(min, max);
+      new DialBoundedLongConverter(min, max, 1L);
     });
+  }
+
+  @Test
+  public void testNextPrevious()
+  {
+    final var c =
+      new DialBoundedLongConverter(-100L, 100L, 1L);
+
+    assertEquals(1L, c.convertedNext(0L));
+    assertEquals(0L, c.convertedPrevious(1L));
   }
 }

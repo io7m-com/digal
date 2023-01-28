@@ -23,11 +23,55 @@ package com.io7m.digal.core;
  * internally. However, it is often desirable to <i>display</i> values in a
  * range other than {@code [0, 1]}. The <tt>DialValueConverterType</tt>
  * interface allows for performing this conversion.</p>
+ *
+ * <p>The following invariant should hold:</p>
+ * {@code x = convertFromDial(convertToDial(x)) }
  */
 
-public sealed interface DialValueConverterType
-  permits DialValueConverterDiscreteType,
-  DialValueConverterRealType
+public non-sealed interface DialValueConverterRealType
+  extends DialValueConverterType
 {
+  /**
+   * Convert a value to the range {@code [0, 1]}.
+   *
+   * @param x The input value
+   *
+   * @return A value in the range {@code [0, 1]}.
+   */
 
+  double convertToDial(
+    double x);
+
+  /**
+   * Convert a value in the range {@code [0, 1]} to the display range.
+   *
+   * @param x The input value
+   *
+   * @return A value in the display range
+   */
+
+  double convertFromDial(
+    double x);
+
+  /**
+   * Determine the "next" value for the given converted value.
+   *
+   * @param x The converted value
+   *
+   * @return The "next" converted value
+   */
+
+  double convertedNext(
+    double x);
+
+  /**
+   * Determine the "previous" value for the given converted value.
+   *
+   * @param x The converted value
+   *
+   * @return The "previous" converted value
+   */
+
+  double convertedPrevious(
+    double x);
 }
