@@ -19,6 +19,7 @@ package com.io7m.digal.tests;
 import com.io7m.digal.core.DialIdentityConverter;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -30,5 +31,13 @@ public final class DialIdentityConverterTest
   {
     final var c = new DialIdentityConverter();
     assertEquals(x, c.convertFromDial(c.convertToDial(x)));
+  }
+
+  @Test
+  public void testPreviousNext()
+  {
+    final var c = new DialIdentityConverter();
+    assertEquals(0.9, c.convertedPrevious(1.0));
+    assertEquals(1.1, c.convertedNext(1.0));
   }
 }

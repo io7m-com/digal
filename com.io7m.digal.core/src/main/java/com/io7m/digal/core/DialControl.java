@@ -31,6 +31,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Control;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
@@ -243,9 +244,8 @@ public final class DialControl extends Region
      */
 
     this.internalValueRaw.addListener(o -> {
-      this.internalValueConverted.set(
-        this.converter.convertFromDial(this.internalValueRaw.get())
-      );
+      final var v = this.internalValueRaw.get();
+      this.internalValueConverted.set(this.doConversionFromDial(v));
     });
 
     /*
@@ -254,9 +254,8 @@ public final class DialControl extends Region
      */
 
     this.externalValueRaw.addListener(o -> {
-      this.externalValueConverted.set(
-        this.converter.convertFromDial(this.externalValueRaw.get())
-      );
+      final var v = this.externalValueRaw.get();
+      this.externalValueConverted.set(this.doConversionFromDial(v));
     });
 
     /*
@@ -277,6 +276,7 @@ public final class DialControl extends Region
     this.canvas.setOnMousePressed(this::onMousePressed);
     this.canvas.setOnMouseDragged(this::onMouseDragged);
     this.canvas.setOnMouseReleased(this::onMouseReleased);
+    this.canvas.setOnScroll(this::onMouseScrolled);
 
     this.internalValueRaw.set(1.0);
     this.internalValueRaw.set(0.0);
@@ -299,6 +299,30 @@ public final class DialControl extends Region
     final double x)
   {
     return Math.min(Math.max(0.0, x), 1.0);
+  }
+
+  private double doConversionFromDial(
+    final double v)
+  {
+    if (this.converter instanceof DialValueConverterDiscreteType discrete) {
+      return (double) discrete.convertFromDial(v);
+    }
+    if (this.converter instanceof DialValueConverterRealType real) {
+      return real.convertFromDial(v);
+    }
+    throw new IllegalStateException("Unrecognized converter type.");
+  }
+
+  private double doConversionToDial(
+    final double x)
+  {
+    if (this.converter instanceof DialValueConverterDiscreteType discrete) {
+      return discrete.convertToDial((long) x);
+    }
+    if (this.converter instanceof DialValueConverterRealType real) {
+      return real.convertToDial(x);
+    }
+    throw new IllegalStateException("Unrecognized converter type.");
   }
 
   /**
@@ -547,7 +571,7 @@ public final class DialControl extends Region
   public void setConvertedValueQuietly(
     final double x)
   {
-    this.setRawValueQuietly(this.converter.convertToDial(x));
+    this.setRawValueQuietly(this.doConversionToDial(x));
   }
 
   /**
@@ -562,7 +586,7 @@ public final class DialControl extends Region
   public void setConvertedValue(
     final double x)
   {
-    this.setRawValue(this.converter.convertToDial(x));
+    this.setRawValue(this.doConversionToDial(x));
   }
 
   /**
@@ -694,6 +718,60 @@ public final class DialControl extends Region
     this.dragging = false;
   }
 
+  private void onMouseScrolled(
+    final ScrollEvent scrollEvent)
+  {
+    final var valueThen =
+      this.internalValueRaw.get();
+
+    final var delta =
+      scrollEvent.getDeltaY();
+
+    final double valueNow;
+    if (delta > 0.0) {
+      valueNow = this.doConversionToNextDial(valueThen);
+    } else if (delta < 0.0) {
+      valueNow = this.doConversionToPreviousDial(valueThen);
+    } else {
+      return;
+    }
+
+    this.setInternalRawValue(valueNow);
+    this.setExternalRawValue(valueNow);
+  }
+
+  private double doConversionToPreviousDial(
+    final double x)
+  {
+    if (this.converter instanceof DialValueConverterDiscreteType discrete) {
+      return discrete.convertToDial(
+        discrete.convertedPrevious(discrete.convertFromDial(x))
+      );
+    }
+    if (this.converter instanceof DialValueConverterRealType real) {
+      return real.convertToDial(
+        real.convertedPrevious(real.convertFromDial(x))
+      );
+    }
+    throw new IllegalStateException("Unrecognized converter.");
+  }
+
+  private double doConversionToNextDial(
+    final double x)
+  {
+    if (this.converter instanceof DialValueConverterDiscreteType discrete) {
+      return discrete.convertToDial(
+        discrete.convertedNext(discrete.convertFromDial(x))
+      );
+    }
+    if (this.converter instanceof DialValueConverterRealType real) {
+      return real.convertToDial(
+        real.convertedNext(real.convertFromDial(x))
+      );
+    }
+    throw new IllegalStateException("Unrecognized converter.");
+  }
+
   private void redraw()
   {
     final var g = this.canvas.getGraphicsContext2D();
@@ -721,8 +799,10 @@ public final class DialControl extends Region
      * dial to visually snap to values.
      */
 
+    final var ic =
+      this.internalValueConverted.get();
     final var valueNow =
-      this.converter.convertToDial(this.internalValueConverted.get());
+      this.doConversionToDial(ic);
 
     this.renderRadialGauge(g, width, height, valueNow);
     this.renderShadow(g, width, height);

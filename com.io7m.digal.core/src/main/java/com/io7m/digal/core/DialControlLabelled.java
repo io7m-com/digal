@@ -126,6 +126,15 @@ public final class DialControlLabelled extends VBox
   }
 
   /**
+   * @return The dial's text field
+   */
+
+  public TextField textField()
+  {
+    return this.text;
+  }
+
+  /**
    * @return The dial's label
    */
 

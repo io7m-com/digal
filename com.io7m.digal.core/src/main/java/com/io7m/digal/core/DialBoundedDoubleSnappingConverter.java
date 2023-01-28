@@ -18,35 +18,39 @@
 package com.io7m.digal.core;
 
 /**
- * A value converter that converts to/from a bounded integer range.
+ * A value converter that converts to/from a bounded double range.
  */
 
-public final class DialBoundedIntegerConverter
-  implements DialValueConverterType
+public final class DialBoundedDoubleSnappingConverter
+  implements DialValueConverterRealType
 {
-  private final int minInclusive;
-  private final int maxInclusive;
+  private final double minInclusive;
+  private final double maxInclusive;
+  private final double increment;
 
   /**
-   * A value converter that converts to/from a bounded integer range.
+   * A value converter that converts to/from a bounded double range.
    *
    * @param inMinInclusive The inclusive minimum value
    * @param inMaxInclusive The inclusive maximum value
+   * @param inIncrement    The increment value
    */
 
-  public DialBoundedIntegerConverter(
-    final int inMinInclusive,
-    final int inMaxInclusive)
+  public DialBoundedDoubleSnappingConverter(
+    final double inMinInclusive,
+    final double inMaxInclusive,
+    final double inIncrement)
   {
     this.minInclusive = inMinInclusive;
     this.maxInclusive = inMaxInclusive;
+    this.increment = inIncrement;
 
     if (inMaxInclusive < inMinInclusive) {
       throw new IllegalArgumentException(
-        "Minimum inclusive %d must be < maximum inclusive %d"
+        "Minimum inclusive %f must be < maximum inclusive %f"
           .formatted(
-            Integer.valueOf(inMinInclusive),
-            Integer.valueOf(inMaxInclusive))
+            Double.valueOf(inMinInclusive),
+            Double.valueOf(inMaxInclusive))
       );
     }
   }
@@ -55,25 +59,40 @@ public final class DialBoundedIntegerConverter
   public double convertToDial(
     final double x)
   {
-    final var dMin =
-      (double) this.minInclusive;
-    final var dMax =
-      (double) this.maxInclusive;
-
-    return (x - dMin) / (dMax - dMin);
+    final var y = (double) Math.round(x / this.increment) * this.increment;
+    final var dMin = this.minInclusive;
+    return (y - dMin) / (this.maxInclusive - dMin);
   }
 
   @Override
   public double convertFromDial(
     final double x)
   {
-    final var dMin =
-      (double) this.minInclusive;
-    final var dMax =
-      (double) this.maxInclusive;
-    final var delta =
-      dMax - dMin;
+    return this.fromDial(this.convertToDial(this.fromDial(x)));
+  }
 
-    return (double) Math.round((x * delta) + dMin);
+  private double fromDial(
+    final double x)
+  {
+    final var dMin =
+      this.minInclusive;
+    final var delta =
+      this.maxInclusive - dMin;
+
+    return (x * delta) + dMin;
+  }
+
+  @Override
+  public double convertedNext(
+    final double x)
+  {
+    return x + this.increment;
+  }
+
+  @Override
+  public double convertedPrevious(
+    final double x)
+  {
+    return x - this.increment;
   }
 }

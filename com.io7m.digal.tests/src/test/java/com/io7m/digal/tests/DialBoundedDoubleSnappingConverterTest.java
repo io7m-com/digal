@@ -17,23 +17,24 @@
 
 package com.io7m.digal.tests;
 
-import com.io7m.digal.core.DialBoundedIntegerConverter;
+import com.io7m.digal.core.DialBoundedDoubleSnappingConverter;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
-import net.jqwik.api.constraints.IntRange;
+import net.jqwik.api.constraints.DoubleRange;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public final class DialBoundedIntegerConverterTest
+public final class DialBoundedDoubleSnappingConverterTest
 {
   @Property
   public void test100(
-    final @ForAll @IntRange(min = 0, max = 100) int x)
+    final @ForAll @DoubleRange(min = (double) 0, max = 100.0) double x)
   {
     final var c =
-      new DialBoundedIntegerConverter(0, 100);
+      new DialBoundedDoubleSnappingConverter((double) 0L, 100.0, 1.0);
     final var y =
       c.convertToDial(x);
 
@@ -43,15 +44,15 @@ public final class DialBoundedIntegerConverterTest
     final var z =
       c.convertFromDial(y);
 
-    assertEquals(x, z, 0.00001);
+    assertEquals(Math.round(x), (double) z, 0.00001);
   }
 
   @Property
   public void test100n_100(
-    final @ForAll @IntRange(min = -100, max = 100) int x)
+    final @ForAll @DoubleRange(min = -100.0, max = 100.0) double x)
   {
     final var c =
-      new DialBoundedIntegerConverter(-100, 100);
+      new DialBoundedDoubleSnappingConverter(-100.0, 100.0, 1.0);
     final var y =
       c.convertToDial(x);
 
@@ -61,16 +62,26 @@ public final class DialBoundedIntegerConverterTest
     final var z =
       c.convertFromDial(y);
 
-    assertEquals(x, z, 0.00001);
+    assertEquals(Math.round(x), (double) z, 0.00001);
   }
 
   @Property
   public void testMisordered(
-    final @ForAll @IntRange(min = 0, max = Integer.MAX_VALUE) int min,
-    final @ForAll @IntRange(min = Integer.MIN_VALUE, max = -1) int max)
+    final @ForAll @DoubleRange(min = (double) 0, max = (double) Integer.MAX_VALUE) double min,
+    final @ForAll @DoubleRange(min = (double) Integer.MIN_VALUE, max = -1.0) double max)
   {
     assertThrows(IllegalArgumentException.class, () -> {
-      new DialBoundedIntegerConverter(min, max);
+      new DialBoundedDoubleSnappingConverter(min, max, 1.0);
     });
+  }
+
+  @Test
+  public void testNextPrevious()
+  {
+    final var c =
+      new DialBoundedDoubleSnappingConverter(-100.0, 100.0, 1L);
+
+    assertEquals(1.0, c.convertedNext(0.0));
+    assertEquals(0.0, c.convertedPrevious(1.0));
   }
 }
