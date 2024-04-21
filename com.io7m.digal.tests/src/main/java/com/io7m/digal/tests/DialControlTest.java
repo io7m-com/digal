@@ -19,7 +19,6 @@ package com.io7m.digal.tests;
 import com.io7m.digal.core.DialControl;
 import com.io7m.digal.core.DialIdentityConverter;
 import com.io7m.digal.core.DialValueConverterRealType;
-import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.VerticalDirection;

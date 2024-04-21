@@ -17,9 +17,7 @@
 package com.io7m.digal.tests;
 
 import com.io7m.digal.core.DialControl;
-import com.io7m.digal.core.DialIdentityConverter;
 import com.io7m.digal.core.DialValueConverterDiscreteType;
-import com.io7m.digal.core.DialValueConverterRealType;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.VerticalDirection;
@@ -35,11 +33,6 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.framework.junit5.Stop;
-
-import java.util.LinkedList;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(ApplicationExtension.class)
 public final class DialControlDiscreteTest
