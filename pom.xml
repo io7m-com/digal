@@ -34,7 +34,7 @@
     <javafx.version>21.0.1</javafx.version>
     <jqwik.version>1.8.4</jqwik.version>
     <junit.version>5.10.1</junit.version>
-    <testfx.version>4.0.17</testfx.version>
+    <testfx.version>4.0.18</testfx.version>
   </properties>
 
   <licenses>
