@@ -37,6 +37,6 @@ jobs:
           name: test-images
           path: ./com.io7m.digal.tests/testCSS.png
       - name: Coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v4
         with:
           file: com.io7m.digal.tests/target/site/jacoco-aggregate/jacoco.xml
