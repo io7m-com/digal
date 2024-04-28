@@ -183,5 +183,5 @@ a dial with id `#dial0`, the following CSS will produce an ugly looking dial:
 }
 ```
 
-![ugly](com.io7m.digal.tests/src/test/resources/com/io7m/digal/tests/dial.png)
+![ugly](com.io7m.digal.tests/src/main/resources/com/io7m/digal/tests/dial.png)
 
