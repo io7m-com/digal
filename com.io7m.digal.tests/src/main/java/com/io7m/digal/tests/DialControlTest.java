@@ -37,6 +37,7 @@ import org.testfx.framework.junit5.Stop;
 
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -87,10 +88,19 @@ public final class DialControlTest
       return x == 2.0;
     });
 
+    final var rawValue = new AtomicReference<Double>();
+
     FxAssert.verifyThat(dial, node -> {
       final var x = node.rawValue().get();
+      rawValue.set(Double.valueOf(x));
+
       final var rounded = Math.floor(x * 100.0) / 100.0;
       return rounded == 0.16;
+    }, sb -> {
+      sb.append(" (Raw value ");
+      sb.append(rawValue.get());
+      sb.append(" must be close to 0.16)");
+      return sb;
     });
   }
 
