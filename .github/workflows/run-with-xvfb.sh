@@ -1,4 +1,9 @@
 #!/bin/bash -ex
+#
+#  Automatically generated: DO NOT EDIT.
+#
+#  Generation code: https://www.github.com/io7m-com/.github/
+#
 
 exec > >(tee build.txt) 2>&1
 
@@ -10,12 +15,11 @@ exec > >(tee build.txt) 2>&1
 #   fluxbox to provide a bare-minimum window manager with click-to-focus
 #   ffmpeg  to record the session
 #   feh     to set a background
-#   xterm   to display the build log in the video
 #
 
 sudo apt-get -y update
 sudo apt-get -y upgrade
-sudo apt-get -y install xvfb fluxbox feh ffmpeg xterm
+sudo apt-get -y install xvfb fluxbox feh ffmpeg
 
 #---------------------------------------------------------------------
 # Start Xvfb on a new display.
@@ -26,6 +30,13 @@ export DISPLAY=:99
 sleep 1
 
 #---------------------------------------------------------------------
+# Start recording the session.
+#
+
+ffmpeg -f x11grab -y -r 60 -video_size 1280x1024 -i :99 -vcodec vp9 test-suite.webm &
+FFMPEG_PID="$!"
+
+#---------------------------------------------------------------------
 # Start fluxbox on the X server.
 #
 
@@ -33,25 +44,11 @@ fluxbox &
 sleep 1
 
 #---------------------------------------------------------------------
-# Start an xterm that displays the build log.
-#
-
-xterm -geometry 200x40 -e tail -F build.txt &
-sleep 1
-
-#---------------------------------------------------------------------
 # Set a desktop image.
 #
 
-feh --bg-tile .github/workflows/wallpaper.jpg
+feh --bg-tile .github/workflows/wallpaper.png
 sleep 1
-
-#---------------------------------------------------------------------
-# Start recording the session.
-#
-
-ffmpeg -f x11grab -y -r 30 -video_size 1280x1024 -i :99 -vcodec libx264 test-suite.mkv &
-FFMPEG_PID="$!"
 
 #---------------------------------------------------------------------
 # Execute the passed-in build command.
@@ -65,7 +62,5 @@ FFMPEG_PID="$!"
 # stops.
 #
 
-sleep 10
-kill -INT "${FFMPEG_PID}"
-sleep 10
-exit 0
+sleep 20
+kill -INT "${FFMPEG_PID}" || true

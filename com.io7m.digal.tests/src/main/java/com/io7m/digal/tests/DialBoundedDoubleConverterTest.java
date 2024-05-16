@@ -18,11 +18,9 @@
 package com.io7m.digal.tests;
 
 import com.io7m.digal.core.DialBoundedDoubleConverter;
-import com.io7m.digal.core.DialBoundedLongConverter;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.constraints.DoubleRange;
-import net.jqwik.api.constraints.IntRange;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

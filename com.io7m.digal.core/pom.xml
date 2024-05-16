@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.digal</artifactId>
     <groupId>com.io7m.digal</groupId>
-    <version>0.0.5</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>com.io7m.digal.core</artifactId>
@@ -22,18 +22,22 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-graphics</artifactId>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-base</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>

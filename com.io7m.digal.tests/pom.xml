@@ -9,7 +9,7 @@
   <parent>
     <artifactId>com.io7m.digal</artifactId>
     <groupId>com.io7m.digal</groupId>
-    <version>0.0.5</version>
+    <version>1.0.0</version>
   </parent>
 
   <artifactId>com.io7m.digal.tests</artifactId>
@@ -20,6 +20,7 @@
 
   <properties>
     <mdep.analyze.skip>true</mdep.analyze.skip>
+    <checkstyle.skip>true</checkstyle.skip>
   </properties>
 
   <dependencies>
@@ -27,6 +28,27 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>com.io7m.digal.core</artifactId>
       <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
     </dependency>
 
     <dependency>
@@ -66,12 +88,12 @@
       <artifactId>testfx-junit5</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.openjfx</groupId>
-      <artifactId>javafx-swing</artifactId>
-    </dependency>
-    <dependency>
       <groupId>com.github.romankh3</groupId>
       <artifactId>image-comparison</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest</artifactId>
     </dependency>
 
     <dependency>

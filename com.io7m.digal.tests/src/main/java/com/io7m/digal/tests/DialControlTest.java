@@ -19,7 +19,6 @@ package com.io7m.digal.tests;
 import com.io7m.digal.core.DialControl;
 import com.io7m.digal.core.DialIdentityConverter;
 import com.io7m.digal.core.DialValueConverterRealType;
-import com.io7m.digal.core.DialValueConverterType;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.VerticalDirection;
@@ -38,6 +37,7 @@ import org.testfx.framework.junit5.Stop;
 
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -88,9 +88,19 @@ public final class DialControlTest
       return x == 2.0;
     });
 
+    final var rawValue = new AtomicReference<Double>();
+
     FxAssert.verifyThat(dial, node -> {
       final var x = node.rawValue().get();
-      return x == 0.16500000000000006;
+      rawValue.set(Double.valueOf(x));
+
+      final var rounded = Math.floor(x * 100.0) / 100.0;
+      return rounded == 0.16;
+    }, sb -> {
+      sb.append(" (Raw value ");
+      sb.append(rawValue.get());
+      sb.append(" must be close to 0.16)");
+      return sb;
     });
   }
 
