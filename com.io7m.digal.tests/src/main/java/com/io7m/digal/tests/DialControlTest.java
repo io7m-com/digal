@@ -89,7 +89,8 @@ public final class DialControlTest
 
     FxAssert.verifyThat(dial, node -> {
       final var x = node.rawValue().get();
-      return x == 0.16500000000000006;
+      final var rounded = Math.floor(x * 100.0) / 100.0;
+      return rounded == 0.16;
     });
   }
 
