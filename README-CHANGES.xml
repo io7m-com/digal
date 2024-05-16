@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <c:changelog project="com.io7m.digal" xmlns:c="urn:com.io7m.changelog:4.0">
   <c:releases>
-    <c:release date="2024-05-16T12:25:27+00:00" is-open="false" ticket-system="com.github.io7m.digal" version="1.0.0">
-      <c:changes/>
+    <c:release date="2024-05-16T12:25:05+00:00" is-open="true" ticket-system="com.github.io7m.digal" version="1.0.0">
+      <c:changes>
+        <c:change date="2024-05-16T12:25:05+00:00" summary="Initial public release."/>
+      </c:changes>
     </c:release>
   </c:releases>
   <c:ticket-systems>
