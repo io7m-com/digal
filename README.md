@@ -40,7 +40,7 @@ A customizable, scalable JavaFX rotary dial.
 </dependency>
 ```
 
-### What Is A Dial?
+### Dials 
 
 A dial is a rotary knob seen on hardware such as guitar amplifiers, mixing
 desks, and etc.
@@ -184,5 +184,5 @@ a dial with id `#dial0`, the following CSS will produce an ugly looking dial:
 }
 ```
 
-![ugly](com.io7m.digal.tests/src/main/resources/com/io7m/digal/tests/dial.png)
+![ugly](src/site/resources/ugly.png)
 
